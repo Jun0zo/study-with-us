@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "stacked-lstm"
+version = "0.1.0"
+description = ""
+authors = ["Jun0zo <joon0zo1022@gmail.com>"]
+readme = "README.md"
+packages = [{include = "stacked_lstm"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+seaborn = "^0.12.2"
+keras = "^2.13.1"
+scikit-learn = "^1.3.0"
+silence-tensorflow = "^1.2.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
