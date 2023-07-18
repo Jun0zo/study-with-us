@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "review-classfication"
+version = "0.1.0"
+description = ""
+authors = ["Jun0zo <joon0zo1022@gmail.com>"]
+readme = "README.md"
+packages = [{include = "review_classfication"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+torch = "^2.0.1"
+transformers = "^4.30.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
