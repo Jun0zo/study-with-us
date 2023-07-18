@@ -30,9 +30,9 @@ from keras.models import load_model
 import joblib
 import warnings
 from keras.optimizers import Adam
-import silence_tensorflow
+# import silence_tensorflow
 warnings.filterwarnings(action='ignore')
-silence_tensorflow.silence_tensorflow()
+# silence_tensorflow.silence_tensorflow()
 
 # Data Preprocessing
 temp_data = pd.read_csv('/열처리 데이터.csv', index_col=0)
@@ -46,8 +46,8 @@ del temp_data['data_date']
 scaler = MinMaxScaler()
 temp_data = scaler.fit_transform(temp_data)
 
-joblib.dump(scaler, '/scaler.pkl')
-scaler = joblib.load('/scaler.pkl')
+joblib.dump(scaler, './scaler.pkl')
+scaler = joblib.load('./scaler.pkl')
 
 Look_Back = 600
 for k in range(len(temp_data)-Look_Back-1):
