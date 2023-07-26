@@ -33,5 +33,6 @@ attention_mask = torch.ones_like(input_ids)
 
 averaged_representation = mc_dropout_inference(model, input_ids, attention_mask, num_mc_samples)
 
+print(averaged_representation)
 # Now, 'averaged_representation' contains the final representation of the input text,
 # with Monte Carlo Dropout applied for uncertainty estimation.

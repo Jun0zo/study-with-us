@@ -7,6 +7,7 @@ from sklearn.mixture import GaussianMixture
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
+from sentence_transformers import SentenceTransformer, util
 
 # Step 1: Read the CSV and extract the first column (review data)
 def read_review_data_csv(csv_file):
@@ -16,32 +17,13 @@ def read_review_data_csv(csv_file):
 
 def calculate_bert_embeddings(review_data):
     # Load BERT model and tokenizer
-    tokenizer = BertTokenizer.from_pretrained('bert-base-multilingual-cased')
-    model = BertModel.from_pretrained('bert-base-multilingual-cased')
+
+    model = SentenceTransformer('snunlp/KR-SBERT-V40K-klueNLI-augSTS') 
 
     # Initialize lists to store embeddings and attention masks
-    all_embeddings = []
+    all_embeddings = model.encode(review_data)
+    print('emb shape', all_embeddings.shape)
 
-    for review in review_data:
-        # Tokenize the review text and convert to tensor
-        encoded_review = tokenizer.encode_plus(review, add_special_tokens=True, max_length=512, padding='max_length',
-                                               truncation=True, return_tensors='pt')
-
-        input_ids = encoded_review['input_ids']
-        attention_mask = encoded_review['attention_mask']
-
-        # Generate the BERT embeddings for the review
-        with torch.no_grad():
-            model_output = model(input_ids, attention_mask=attention_mask)
-
-        all_hidden_states = model_output.last_hidden_state
-        all_token_embeddings = all_hidden_states[:, 1:-1, :].numpy()  # Exclude [CLS] and [SEP] tokens
-        all_embeddings.extend(all_token_embeddings)
-
-    # all_embeddings = np.concatenate(all_embeddings, axis=0)  # Concatenate along the first axis (samples)
-    all_embeddings = np.array(all_embeddings)
-    print(all_embeddings.shape)
-    # Save the embeddings to a file
     with open('bert_kor_embeddings.pkl', 'wb') as f:
         pickle.dump(all_embeddings, f)
 
@@ -53,7 +35,7 @@ def em_clustering(embeddings, n_clusters=-1):
     embeddings = np.reshape(embeddings, (embeddings.shape[0], -1))
     print("embeddings after reshape", embeddings.shape)
 
-    pca = PCA(n_components=2)
+    pca = PCA(n_components=3)
     embeddings_2d = pca.fit_transform(embeddings)
 
     # Try different number of clusters and calculate AIC and BIC
@@ -96,18 +78,42 @@ def em_clustering(embeddings, n_clusters=-1):
 
     return cluster_labels, embeddings_2d
 
-def visualize_clusters(embeddings_2d, cluster_labels):
-    # plot the 2D points
-    plt.scatter(embeddings_2d[:, 0], embeddings_2d[:, 1], c=cluster_labels, cmap='viridis')
-    # add labels
-    # i want to know the labels of each point
-    for i, txt in enumerate(cluster_labels):
-        plt.annotate(txt, (embeddings_2d[i, 0], embeddings_2d[i, 1]))
+def visualize_clusters(embeddings_3d, cluster_labels):
+    # Create a 3D scatter plot
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    # Plot the 3D points
+    ax.scatter(embeddings_3d[:, 0], embeddings_3d[:, 1], embeddings_3d[:, 2], c=cluster_labels, cmap='viridis')
+
+    # show other views 
+    ax.view_init(30, 30)
+    plt.savefig('clusters_3d_1.png')
+    ax.view_init(30, 60)
+    plt.savefig('clusters_3d_2.png')
+    ax.view_init(30, 90)
+    plt.savefig('clusters_3d_3.png')
+    ax.view_init(30, 120)
+    plt.savefig('clusters_3d_4.png')
+    ax.view_init(30, 150)
+    plt.savefig('clusters_3d_5.png')
+    ax.view_init(30, 180)
+    plt.savefig('clusters_3d_6.png')
     
-    plt.xlabel('Dimension 1')
-    plt.ylabel('Dimension 2')
-    plt.title('EM Clustering')
-    plt.savefig('clusters.png')
+
+
+    # Add labels to each point
+    #for i, txt in enumerate(cluster_labels):
+    #   ax.text(embeddings_3d[i, 0], embeddings_3d[i, 1], embeddings_3d[i, 2], str(txt))
+
+    # Set axis labels and title
+    ax.set_xlabel('Dimension 1')
+    ax.set_ylabel('Dimension 2')
+    ax.set_zlabel('Dimension 3')
+    ax.set_title('EM Clustering in 3D')
+
+    # Save the plot to a file
+    plt.savefig('clusters_3d.png')
 
 
 
@@ -149,3 +155,5 @@ if __name__ == "__main__":
     df['cluster_labels'] = cluster_labels
     df.to_csv('train_data_with_clusters.csv', index=False)
     print('Done!')
+
+
